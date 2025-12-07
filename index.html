@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.95, maximum-scale=1.0, user-scalable=no">
+    <title>varicalc</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+        }
+
+        /* Dark theme variables */
+        .dark-theme {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --border: #475569;
+            --border-hover: #64748b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s ease;
+        }
+
+        .section-title h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 14px;
+        }
+
+        .variables-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .variable-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .variable-row:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+        }
+
+        .var-name-input {
+            width: 90px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            text-align: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .var-name-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .var-equals {
+            color: var(--text-tertiary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .var-value-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 13px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .var-value-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .var-value-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .expression-section {
+            flex-shrink: 0;
+        }
+
+        .expression-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+
+        .expression-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 15px;
+            font-weight: 200;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .expression-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .expression-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .results-section {
+            flex-shrink: 0;
+        }
+
+        .results-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .result-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .result-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .result-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-family: 'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 20px;
+            font-weight: 200;
+            color: var(--text-primary);
+            word-break: break-all;
+            line-height: 1.4;
+            min-height: 22px;
+        }
+
+        .result-value.empty {
+            color: var(--text-tertiary);
+            font-style: italic;
+        }
+
+        .variables-list-section {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .variables-list-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+
+        .variables-grid {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            overflow-y: auto;
+            padding: 4px 2px 2px 0;
+            align-content: flex-start;
+        }
+
+        .variable-tag {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 13px;
+            max-width: 100%;
+        }
+
+        .variable-tag:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .variable-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .variable-value {
+            color: var(--success);
+            font-weight: 500;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .variable-value.undefined {
+            color: var(--text-tertiary);
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-tertiary);
+            padding: 40px 20px;
+            font-style: italic;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .error {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fef2f2;
+            color: var(--danger);
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid #fecaca;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .dark-theme .error {
+            background: #2c1c1c;
+            border-color: #5c3a3a;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .auto-suggestion {
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            font-size: 13px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .suggestion-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: background 0.1s ease;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .suggestion-item.selected {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+
+        .suggestion-name {
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .suggestion-value {
+            color: var(--text-secondary);
+            font-size: 12px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .suggestion-type {
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .suggestion-type.variable {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .dark-theme .suggestion-type.variable {
+            background: #1e3a8a;
+            color: #dbeafe;
+        }
+
+        .suggestion-type.constant {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .dark-theme .suggestion-type.constant {
+            background: #78350f;
+            color: #fef3c7;
+        }
+
+        .suggestion-type.function {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .dark-theme .suggestion-type.function {
+            background: #064e3b;
+            color: #d1fae5;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Electron specific */
+        @media (-webkit-device-pixel-ratio: 2) {
+            :root {
+                --border: #e5e7eb;
+            }
+        }
+
+        .status-bar {
+            padding: 8px 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-tertiary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .status-info {
+            display: flex;
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-item::before {
+            font-size: 11px;
+        }
+
+        .status-vars::before {
+            content: "📝";
+        }
+
+        .status-ready::before {
+            content: "✅";
+        }
+
+        /* Theme toggle styles */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle:active {
+            transform: translateY(0);
+        }
+
+        .theme-icon {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .dark-theme .theme-icon {
+            transform: rotate(180deg);
+        }
+
+        .theme-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+   </div>
+
+    <div class="main-container">
+        <div class="section">
+            <div class="section-title">
+                <h2>Variables</h2>
+                 <button class="btn" onclick="addVariable()">
+            <span class="btn-icon">+</span>
+            New Variable
+        </button>
+            </div>
+            <div class="variables-container" id="variables-container">
+                <!-- Variables will be added here -->
+            </div>
+            
+        </div>
+
+        <div class="section expression-section">
+            <div class="expression-title">Expression</div>
+            <input type="text" 
+                   class="expression-input" 
+                   id="main-expression"
+                   placeholder="Enter expression (e.g., A + B * sqrt(C))" 
+                   oninput="showSuggestions(event); calculateResult()"
+                   onkeydown="handleExpressionKeydown(event)"
+                   autocomplete="off"
+                   spellcheck="false">
+        </div>
+
+        <div class="section results-section">
+            <div class="results-title">Result</div>
+            <div class="results-grid">
+                <div class="result-card">
+                    <span class="result-label">Decimal</span>
+                    <div id="result-dec" class="result-value empty">—</div>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Hexadecimal</span>
+                    <div id="result-hex" class="result-value empty">—</div>
+                </div>
+                <div class="result-card">
+                    <span class="result-label">Binary</span>
+                    <div id="result-bin" class="result-value empty">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section variables-list-section">
+            <div class="variables-list-title">Defined Variables</div>
+            <div id="variables-display" class="variables-grid">
+                <!-- Variables list will be updated here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="suggestions" class="auto-suggestion"></div>
+    <div id="error-message" class="error"></div>
+
+    <div class="status-bar">
+        <div class="status-info">
+            <div class="status-item status-vars" id="var-count">Variables: 0</div>
+            <div class="status-item status-ready" id="calc-status">Ready</div>
+        </div>
+        <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-text" id="theme-text">Dark Mode</span>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let variables = {
+            'A': '',
+            'B': '',
+            'C': '',
+        };
+
+        // Constants (stored in lowercase for comparison)
+        const constants = {
+            'pi': Math.PI,
+            'e': Math.E
+        };
+
+        // Available functions
+        const functions = {
+            'sqrt': 'Square root',
+            'sin': 'Sine',
+            'cos': 'Cosine', 
+            'tan': 'Tangent',
+            'abs': 'Absolute value',
+            'log': 'Natural logarithm',
+            'exp': 'Exponent',
+            'floor': 'Floor',
+            'ceil': 'Ceiling',
+            'round': 'Round'
+        };
+
+        // Map for case-insensitive variable lookup
+        let variableCaseMap = {};
+
+        // Track active suggestion index
+        let currentSuggestionIndex = -1;
+
+        // Theme management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('varicalc-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                enableDarkTheme();
+            } else {
+                enableLightTheme();
+            }
+        }
+
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                enableLightTheme();
+            } else {
+                enableDarkTheme();
+            }
+        }
+
+        function enableDarkTheme() {
+            document.body.classList.add('dark-theme');
+            document.getElementById('theme-text').textContent = 'Light Mode';
+            document.querySelector('.theme-icon').textContent = '☀️';
+            localStorage.setItem('varicalc-theme', 'dark');
+        }
+
+        function enableLightTheme() {
+            document.body.classList.remove('dark-theme');
+            document.getElementById('theme-text').textContent = 'Dark Mode';
+            document.querySelector('.theme-icon').textContent = '🌙';
+            localStorage.setItem('varicalc-theme', 'light');
+        }
+
+        // Initialize interface
+        function init() {
+            initTheme();
+            updateCaseMap();
+            
+            Object.keys(variables).forEach(name => {
+                addVariableToUI(name, variables[name]);
+            });
+            
+            updateVariablesDisplay();
+            updateStatusBar();
+            calculateResult();
+            
+            // Set initial focus
+            setTimeout(() => {
+                document.getElementById('main-expression').focus();
+            }, 100);
+        }
+
+        // Update case map
+        function updateCaseMap() {
+            variableCaseMap = {};
+            Object.keys(variables).forEach(name => {
+                variableCaseMap[name.toLowerCase()] = name;
+            });
+        }
+
+        // Get original variable name (case-sensitive)
+        function getOriginalName(name) {
+            const lowerName = name.toLowerCase();
+            return variableCaseMap[lowerName] || name;
+        }
+
+        // Validate variable name
+        function isValidVariableName(name) {
+            return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name) && 
+                   !constants.hasOwnProperty(name.toLowerCase()) &&
+                   !functions.hasOwnProperty(name.toLowerCase());
+        }
+
+        // Check if variable exists (case-insensitive)
+        function variableExists(name) {
+            return variableCaseMap.hasOwnProperty(name.toLowerCase());
+        }
+
+        // Generate unique variable name
+        function getUniqueVariableName(base = 'var') {
+            let name = base;
+            let counter = 1;
+            
+            while (variableExists(name)) {
+                name = `${base}${counter}`;
+                counter++;
+            }
+            
+            return name;
+        }
+
+        // Add variable to UI
+        function addVariableToUI(name, value = '') {
+            const container = document.getElementById('variables-container');
+            const row = document.createElement('div');
+            row.className = 'variable-row';
+            row.id = `var-row-${name.toLowerCase()}`;
+            
+            row.innerHTML = `
+                <input type="text" 
+                       class="var-name-input" 
+                       value="${name}"
+                       data-original-name="${name}"
+                       oninput="validateVariableName(this, '${name}')"
+                       onblur="updateVariableName('${name}', this.value)"
+                       onkeydown="if(event.key === 'Enter') this.blur()">
+                <div class="var-equals">=</div>
+                <input type="text" 
+                       class="var-value-input" 
+                       value="${value}"
+                       placeholder="Value or expression"
+                       oninput="updateVariableValue('${name}', this.value)"
+                       onkeydown="if(event.key === 'Enter') calculateResult()"
+                       spellcheck="false">
+                <button class="remove-btn" onclick="removeVariable('${name}')" title="Remove variable">×</button>
+            `;
+            
+            container.appendChild(row);
+        }
+
+        // Add new variable
+        function addVariable() {
+            const newName = getUniqueVariableName('x');
+            variables[newName] = '';
+            updateCaseMap();
+            addVariableToUI(newName);
+            updateVariablesDisplay();
+            updateStatusBar();
+            calculateResult();
+            
+            // Focus on the new variable name field
+            setTimeout(() => {
+                const input = document.querySelector(`#var-row-${newName.toLowerCase()} .var-name-input`);
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 50);
+        }
+
+        // Remove variable
+        function removeVariable(name) {
+            if (Object.keys(variables).length <= 1) {
+                showError('Must have at least one variable');
+                return;
+            }
+            
+            const originalName = getOriginalName(name);
+            delete variables[originalName];
+            updateCaseMap();
+            
+            const row = document.getElementById(`var-row-${originalName.toLowerCase()}`);
+            if (row) row.remove();
+            
+            updateVariablesDisplay();
+            updateStatusBar();
+            calculateResult();
+        }
+
+        // Update variable name
+        function updateVariableName(oldName, newName) {
+            newName = newName.trim();
+            const originalOldName = getOriginalName(oldName);
+            
+            if (newName.toLowerCase() === originalOldName.toLowerCase()) {
+                // Only case changed
+                if (newName !== originalOldName) {
+                    variables[newName] = variables[originalOldName];
+                    delete variables[originalOldName];
+                    updateCaseMap();
+                    
+                    // Update UI
+                    const row = document.getElementById(`var-row-${originalOldName.toLowerCase()}`);
+                    if (row) {
+                        row.id = `var-row-${newName.toLowerCase()}`;
+                        const nameInput = row.querySelector('.var-name-input');
+                        nameInput.value = newName;
+                        nameInput.setAttribute('data-original-name', newName);
+                        
+                        const valueInput = row.querySelector('.var-value-input');
+                        valueInput.setAttribute('oninput', `updateVariableValue('${newName}', this.value)`);
+                        
+                        const removeBtn = row.querySelector('.remove-btn');
+                        removeBtn.setAttribute('onclick', `removeVariable('${newName}')`);
+                    }
+                    
+                    updateVariablesDisplay();
+                    calculateResult();
+                }
+                return;
+            }
+            
+            if (!newName) {
+                showError('Variable name cannot be empty');
+                restoreVariableName(originalOldName);
+                return;
+            }
+            
+            if (!isValidVariableName(newName)) {
+                showError('Invalid name. Use letters, numbers, underscores. Start with letter or _.');
+                restoreVariableName(originalOldName);
+                return;
+            }
+            
+            if (variableExists(newName)) {
+                showError(`Variable "${newName}" already exists (case-insensitive)`);
+                restoreVariableName(originalOldName);
+                return;
+            }
+            
+            // Update variable
+            variables[newName] = variables[originalOldName];
+            delete variables[originalOldName];
+            updateCaseMap();
+            
+            // Update UI
+            const row = document.getElementById(`var-row-${originalOldName.toLowerCase()}`);
+            if (row) {
+                row.id = `var-row-${newName.toLowerCase()}`;
+                const nameInput = row.querySelector('.var-name-input');
+                nameInput.value = newName;
+                nameInput.setAttribute('data-original-name', newName);
+                
+                const valueInput = row.querySelector('.var-value-input');
+                valueInput.setAttribute('oninput', `updateVariableValue('${newName}', this.value)`);
+                
+                const removeBtn = row.querySelector('.remove-btn');
+                removeBtn.setAttribute('onclick', `removeVariable('${newName}')`);
+            }
+            
+            updateVariablesDisplay();
+            updateStatusBar();
+            calculateResult();
+        }
+
+        // Restore original variable name
+        function restoreVariableName(name) {
+            const originalName = getOriginalName(name);
+            const row = document.getElementById(`var-row-${originalName.toLowerCase()}`);
+            if (row) {
+                const nameInput = row.querySelector('.var-name-input');
+                nameInput.value = originalName;
+            }
+        }
+
+        // Validate variable name in real-time
+        function validateVariableName(input, originalName) {
+            const name = input.value.trim();
+            const lowerName = name.toLowerCase();
+            
+            if (!name) {
+                input.style.borderColor = 'var(--danger)';
+                return;
+            }
+            
+            if (!isValidVariableName(name)) {
+                input.style.borderColor = 'var(--danger)';
+            } else if (variableExists(name) && lowerName !== originalName.toLowerCase()) {
+                input.style.borderColor = 'var(--danger)';
+            } else {
+                input.style.borderColor = lowerName === originalName.toLowerCase() ? 'var(--border)' : 'var(--accent)';
+            }
+        }
+
+        // Update variable value
+        function updateVariableValue(name, value) {
+            const originalName = getOriginalName(name);
+            variables[originalName] = value.trim();
+            updateVariablesDisplay();
+            calculateResult();
+        }
+
+        // Update variables display list
+        function updateVariablesDisplay() {
+            const display = document.getElementById('variables-display');
+            const varNames = Object.keys(variables);
+            
+            if (varNames.length === 0) {
+                display.innerHTML = '<div class="empty-state">No variables defined</div>';
+                return;
+            }
+            
+            display.innerHTML = varNames.map(name => {
+                let computedValue = null;
+                
+                try {
+                    computedValue = evaluateExpression(variables[name]);
+                } catch (e) {
+                    computedValue = null;
+                }
+                
+                const displayValue = computedValue !== null && !isNaN(computedValue) 
+                    ? computedValue.toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                        minimumFractionDigits: 0
+                    })
+                    : variables[name] || 'undefined';
+                
+                const isDefined = computedValue !== null && !isNaN(computedValue);
+                
+                return `
+                    <div class="variable-tag" onclick="insertVariable('${name}')" title="${name} = ${variables[name] || 'undefined'}">
+                        <span class="variable-name">${name}</span>
+                        <span class="variable-value ${isDefined ? '' : 'undefined'}">= ${displayValue}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update status bar
+        function updateStatusBar() {
+            const varCount = document.getElementById('var-count');
+            const calcStatus = document.getElementById('calc-status');
+            
+            varCount.textContent = `Variables: ${Object.keys(variables).length}`;
+            
+            const expr = document.getElementById('main-expression').value.trim();
+            if (expr) {
+                try {
+                    evaluateExpression(expr);
+                    calcStatus.textContent = 'Valid expression';
+                    calcStatus.style.color = 'var(--success)';
+                } catch (e) {
+                    calcStatus.textContent = 'Invalid expression';
+                    calcStatus.style.color = 'var(--danger)';
+                }
+            } else {
+                calcStatus.textContent = 'Ready';
+                calcStatus.style.color = 'var(--text-tertiary)';
+            }
+        }
+
+        // Insert variable into expression
+        function insertVariable(varName) {
+            const input = document.getElementById('main-expression');
+            const cursorPos = input.selectionStart;
+            const currentValue = input.value;
+            
+            const newValue = currentValue.substring(0, cursorPos) + 
+                           varName + 
+                           currentValue.substring(cursorPos);
+            
+            input.value = newValue;
+            input.focus();
+            
+            const newCursorPos = cursorPos + varName.length;
+            input.setSelectionRange(newCursorPos, newCursorPos);
+            
+            calculateResult();
+        }
+
+        // Show autocomplete suggestions
+        function showSuggestions(event) {
+            const input = event.target;
+            const cursorPos = input.selectionStart;
+            const textBeforeCursor = input.value.substring(0, cursorPos);
+            
+            const words = textBeforeCursor.match(/([a-zA-Z_][a-zA-Z0-9_]*)$/);
+            
+            if (!words) {
+                hideSuggestions();
+                return;
+            }
+            
+            const currentWord = words[1].toLowerCase();
+            const suggestions = getSuggestions(currentWord);
+            
+            if (suggestions.length === 0) {
+                hideSuggestions();
+                return;
+            }
+            
+            const rect = input.getBoundingClientRect();
+            const suggestionsDiv = document.getElementById('suggestions');
+            
+            suggestionsDiv.style.left = (rect.left + window.scrollX) + 'px';
+            suggestionsDiv.style.top = (rect.bottom + window.scrollY) + 'px';
+            suggestionsDiv.style.width = Math.max(rect.width, 300) + 'px';
+            
+            suggestionsDiv.innerHTML = suggestions.map((item, index) => `
+                <div class="suggestion-item ${index === 0 ? 'selected' : ''}" 
+                     onclick="applySuggestion('${item.value}', '${item.type}')"
+                     data-index="${index}">
+                    <div>
+                        <span class="suggestion-name">${item.display}</span>
+                        <span class="suggestion-type ${item.type}">${item.type}</span>
+                    </div>
+                    <span class="suggestion-value">${item.description}</span>
+                </div>
+            `).join('');
+            
+            suggestionsDiv.style.display = 'block';
+            currentSuggestionIndex = 0;
+        }
+
+        // Get suggestions for autocomplete
+        function getSuggestions(prefix) {
+            const suggestions = [];
+            const lowerPrefix = prefix.toLowerCase();
+            
+            // Variables
+            Object.keys(variables).forEach(name => {
+                if (name.toLowerCase().includes(lowerPrefix)) {
+                    let computedValue = null;
+                    try {
+                        computedValue = evaluateExpression(variables[name]);
+                    } catch (e) {
+                        computedValue = null;
+                    }
+                    
+                    const description = computedValue !== null && !isNaN(computedValue) 
+                        ? `= ${computedValue.toFixed(4)}`
+                        : variables[name] || 'undefined';
+                    
+                    suggestions.push({
+                        value: name,
+                        display: name,
+                        description: description,
+                        type: 'variable'
+                    });
+                }
+            });
+            
+            // Constants
+            Object.keys(constants).forEach(name => {
+                if (name.includes(lowerPrefix)) {
+                    suggestions.push({
+                        value: name,
+                        display: name,
+                        description: `≈ ${constants[name].toFixed(6)}`,
+                        type: 'constant'
+                    });
+                }
+            });
+            
+            // Functions
+            Object.keys(functions).forEach(name => {
+                if (name.includes(lowerPrefix)) {
+                    suggestions.push({
+                        value: name,
+                        display: name + '()',
+                        description: functions[name],
+                        type: 'function'
+                    });
+                }
+            });
+            
+            return suggestions.sort((a, b) => {
+                const typeOrder = { variable: 1, constant: 2, function: 3 };
+                if (typeOrder[a.type] !== typeOrder[b.type]) {
+                    return typeOrder[a.type] - typeOrder[b.type];
+                }
+                return a.display.localeCompare(b.display);
+            });
+        }
+
+        // Apply suggestion
+        function applySuggestion(value, type) {
+            const input = document.getElementById('main-expression');
+            const cursorPos = input.selectionStart;
+            const currentValue = input.value;
+            
+            const textBeforeCursor = currentValue.substring(0, cursorPos);
+            const match = textBeforeCursor.match(/([a-zA-Z_][a-zA-Z0-9_]*)$/);
+            
+            if (match) {
+                const startPos = cursorPos - match[1].length;
+                const endPos = cursorPos;
+                
+                const insertValue = type === 'function' ? value + '()' : value;
+                
+                const newValue = currentValue.substring(0, startPos) + 
+                               insertValue + 
+                               currentValue.substring(endPos);
+                
+                input.value = newValue;
+                input.focus();
+                
+                const newCursorPos = type === 'function' ? startPos + value.length + 1 : startPos + insertValue.length;
+                input.setSelectionRange(newCursorPos, newCursorPos);
+                
+                calculateResult();
+            }
+            
+            hideSuggestions();
+        }
+
+        // Hide suggestions
+        function hideSuggestions() {
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+
+        // Handle keyboard in expression input
+        function handleExpressionKeydown(event) {
+            const suggestionsDiv = document.getElementById('suggestions');
+            
+            if (suggestionsDiv.style.display === 'block') {
+                const items = suggestionsDiv.querySelectorAll('.suggestion-item');
+                
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    currentSuggestionIndex = (currentSuggestionIndex + 1) % items.length;
+                    updateSuggestionSelection(items);
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    currentSuggestionIndex = (currentSuggestionIndex - 1 + items.length) % items.length;
+                    updateSuggestionSelection(items);
+                } else if (event.key === 'Enter' && currentSuggestionIndex >= 0) {
+                    event.preventDefault();
+                    items[currentSuggestionIndex].click();
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    hideSuggestions();
+                }
+            } else if (event.key === 'Escape') {
+                document.getElementById('main-expression').blur();
+            }
+        }
+
+        // Update suggestion selection
+        function updateSuggestionSelection(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === currentSuggestionIndex);
+                if (index === currentSuggestionIndex) {
+                    item.scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
+
+        // Evaluate expression (CASE-INSENSITIVE)
+        function evaluateExpression(expr, visited = new Set()) {
+            expr = expr.trim();
+            if (!expr) return null;
+
+            if (visited.has(expr.toLowerCase())) {
+                throw new Error('Circular dependency');
+            }
+            visited.add(expr.toLowerCase());
+
+            if (!isNaN(expr) && expr !== '') {
+                return parseFloat(expr);
+            }
+
+            const lowerExpr = expr.toLowerCase();
+            if (constants.hasOwnProperty(lowerExpr)) {
+                return constants[lowerExpr];
+            }
+
+            if (variableExists(expr)) {
+                const originalName = getOriginalName(expr);
+                try {
+                    return evaluateExpression(variables[originalName], visited);
+                } catch (e) {
+                    throw new Error(`Error in ${originalName}: ${e.message}`);
+                }
+            }
+
+            const funcMatch = expr.match(/^(\w+)\(([^)]+)\)$/);
+            if (funcMatch) {
+                const [, funcName, arg] = funcMatch;
+                const argValue = evaluateExpression(arg, visited);
+                
+                switch(funcName.toLowerCase()) {
+                    case 'sqrt': return Math.sqrt(argValue);
+                    case 'sin': return Math.sin(argValue);
+                    case 'cos': return Math.cos(argValue);
+                    case 'tan': return Math.tan(argValue);
+                    case 'abs': return Math.abs(argValue);
+                    case 'log': return Math.log(argValue);
+                    case 'exp': return Math.exp(argValue);
+                    case 'floor': return Math.floor(argValue);
+                    case 'ceil': return Math.ceil(argValue);
+                    case 'round': return Math.round(argValue);
+                    default: throw new Error(`Unknown function: ${funcName}`);
+                }
+            }
+
+            while (expr.includes('(')) {
+                const match = expr.match(/\(([^()]+)\)/);
+                if (!match) break;
+                const innerResult = evaluateExpression(match[1], visited);
+                expr = expr.replace(`(${match[1]})`, innerResult.toString());
+            }
+
+            const tokens = expr.match(/(\d+\.?\d*|[a-zA-Z_][a-zA-Z0-9_]*|\+|-|\*|\/|\^)/g);
+            if (!tokens) throw new Error('Invalid expression');
+
+            const ops = [
+                { regex: /[\^]/g, eval: (a, b) => Math.pow(a, b) },
+                { regex: /[*/]/g, eval: (a, b, op) => op === '*' ? a * b : a / b },
+                { regex: /[+-]/g, eval: (a, b, op) => op === '+' ? a + b : a - b }
+            ];
+
+            let result = evaluateToken(tokens[0], visited);
+            
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const nextToken = tokens[i + 1];
+                const nextValue = evaluateToken(nextToken, visited);
+                
+                for (const opGroup of ops) {
+                    if (op.match(opGroup.regex)) {
+                        result = opGroup.eval(result, nextValue, op);
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Evaluate token
+        function evaluateToken(token, visited) {
+            token = token.trim();
+            
+            if (!isNaN(token)) {
+                return parseFloat(token);
+            }
+            
+            const lowerToken = token.toLowerCase();
+            
+            if (constants.hasOwnProperty(lowerToken)) {
+                return constants[lowerToken];
+            }
+            
+            if (variableExists(token)) {
+                const originalName = getOriginalName(token);
+                return evaluateExpression(variables[originalName], visited);
+            }
+            
+            throw new Error(`Unknown: ${token}`);
+        }
+
+        // Calculate and display result
+        function calculateResult() {
+            const expressionInput = document.getElementById('main-expression');
+            const expr = expressionInput.value.trim();
+            
+            hideError();
+            updateStatusBar();
+            
+            try {
+                if (!expr) {
+                    updateResults(NaN);
+                    return;
+                }
+                
+                const result = evaluateExpression(expr);
+                
+                if (isNaN(result) || !isFinite(result)) {
+                    throw new Error('Not a number');
+                }
+                
+                updateResults(result);
+            } catch (error) {
+                updateResults(NaN);
+                // Don't show error for empty or partial expressions
+                if (expr.length > 0 && !expr.match(/^[a-zA-Z_]+$/)) {
+                    showError(error.message);
+                }
+            }
+        }
+
+        // Update results display
+        function updateResults(value) {
+            const decElement = document.getElementById('result-dec');
+            const hexElement = document.getElementById('result-hex');
+            const binElement = document.getElementById('result-bin');
+            
+            if (isNaN(value) || !isFinite(value)) {
+                decElement.textContent = '—';
+                decElement.className = 'result-value empty';
+                hexElement.textContent = '—';
+                hexElement.className = 'result-value empty';
+                binElement.textContent = '—';
+                binElement.className = 'result-value empty';
+                return;
+            }
+            
+            // DEC
+            decElement.textContent = value.toLocaleString(undefined, {
+                maximumFractionDigits: 10,
+                minimumFractionDigits: 0
+            });
+            decElement.className = 'result-value';
+            
+            // HEX
+            if (Number.isInteger(value)) {
+                hexElement.textContent = '0x' + value.toString(16).toUpperCase();
+            } else {
+                hexElement.textContent = '0x' + value.toString(16).toUpperCase().slice(0, 14) + '...';
+            }
+            hexElement.className = 'result-value';
+            
+            // BIN
+            if (Number.isInteger(value) && Math.abs(value) < 1024) {
+                binElement.textContent = value.toString(2);
+            } else {
+                binElement.textContent = 'Too large';
+            }
+            binElement.className = 'result-value';
+        }
+
+        // Show error
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            setTimeout(hideError, 4000);
+        }
+
+        // Hide error
+        function hideError() {
+            const errorElement = document.getElementById('error-message');
+            errorElement.style.display = 'none';
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Global functions
+        window.addVariable = addVariable;
+        window.removeVariable = removeVariable;
+        window.updateVariableName = updateVariableName;
+        window.updateVariableValue = updateVariableValue;
+        window.validateVariableName = validateVariableName;
+        window.calculateResult = calculateResult;
+        window.insertVariable = insertVariable;
+        window.showSuggestions = showSuggestions;
+        window.applySuggestion = applySuggestion;
+        window.handleExpressionKeydown = handleExpressionKeydown;
+        window.toggleTheme = toggleTheme;
+    </script>
+</body>
+</html>
