@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.95, maximum-scale=1.0, user-scalable=no">
     <title>varicalc</title>
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
     <style>
         * {
             box-sizing: border-box;
@@ -167,33 +165,49 @@
             font-size: 14px;
         }
 
+        /* Updated variables container for tiles */
         .variables-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+            align-content: flex-start;
+        }
+
+        /* Updated variable row as tiles */
+        .variable-row {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .variable-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
+            padding: 14px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
             transition: all 0.2s ease;
+            position: relative;
+            min-height: 110px;
         }
 
         .variable-row:hover {
             border-color: var(--border-hover);
             background: var(--bg-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .variable-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 4px;
         }
 
         .var-name-input {
-            width: 90px;
+            flex: 1;
+            min-width: 0;
             padding: 8px 10px;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -202,7 +216,7 @@
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-secondary);
-            text-align: center;
+            text-align: left;
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
@@ -212,14 +226,29 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .variable-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .var-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         .var-equals {
             color: var(--text-tertiary);
             font-weight: 500;
-            font-size: 14px;
         }
 
         .var-value-input {
-            flex: 1;
+            width: 100%;
             padding: 8px 12px;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -228,6 +257,7 @@
             background: var(--bg-secondary);
             color: var(--text-primary);
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            min-height: 36px;
         }
 
         .var-value-input:focus {
@@ -241,6 +271,9 @@
         }
 
         .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background: none;
             border: none;
             color: var(--text-tertiary);
@@ -253,6 +286,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            z-index: 1;
         }
 
         .remove-btn:hover {
@@ -282,7 +316,6 @@
             border-radius: var(--radius-md);
             font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
             font-size: 15px;
-            font-weight: 200;
             background: var(--bg-secondary);
             color: var(--text-primary);
             transition: all 0.2s ease;
@@ -330,6 +363,7 @@
         .result-card:hover {
             border-color: var(--border-hover);
             background: var(--bg-secondary);
+            transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
 
@@ -344,18 +378,51 @@
         }
 
         .result-value {
-            font-family: 'Cascadia Code', 'Lucida Console', var(--font-mono);
-            font-size: 20px;
-            font-weight: 200;
+            font-family:'Cascadia Code', 'Lucida Console', var(--font-mono);
+            font-size: 15px;
+            font-weight: 500;
             color: var(--text-primary);
             word-break: break-all;
             line-height: 1.4;
             min-height: 22px;
+            cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .result-value:hover {
+            color: var(--accent);
+        }
+
+        .result-value.copy-hint::after {
+            content: "📋";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .result-value.copy-success::after {
+            content: "✅";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.8;
         }
 
         .result-value.empty {
             color: var(--text-tertiary);
             font-style: italic;
+            cursor: default;
+        }
+
+        .result-value.empty:hover {
+            color: var(--text-tertiary);
         }
 
         .variables-list-section {
@@ -592,6 +659,39 @@
             }
         }
 
+        /* Responsive grid */
+        @media (max-width: 1200px) {
+            .variables-container {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .variables-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .variables-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-container {
+                padding: 12px;
+                gap: 15px;
+            }
+            
+            .section {
+                padding: 14px;
+            }
+        }
+
         .status-bar {
             padding: 8px 20px;
             background: var(--bg-secondary);
@@ -674,7 +774,7 @@
     <div class="main-container">
         <div class="section">
             <div class="section-title">
-                <h2>Variables</h2>
+                <h>Variables</h>
                  <button class="btn" onclick="addVariable()">
             <span class="btn-icon">+</span>
             New Variable
@@ -716,12 +816,7 @@
             </div>
         </div>
 
-        <div class="section variables-list-section">
-            <div class="variables-list-title">Defined Variables</div>
-            <div id="variables-display" class="variables-grid">
-                <!-- Variables list will be updated here -->
-            </div>
-        </div>
+
     </div>
 
     <div id="suggestions" class="auto-suggestion"></div>
@@ -806,6 +901,129 @@
             localStorage.setItem('varicalc-theme', 'light');
         }
 
+        // Функция для точного форматирования чисел
+        function formatNumberPrecise(value) {
+            if (isNaN(value) || !isFinite(value)) {
+                return value.toString();
+            }
+            
+            // Для очень больших или очень маленьких чисел используем научную нотацию
+            if (Math.abs(value) >= 1e15 || (Math.abs(value) > 0 && Math.abs(value) < 1e-15)) {
+                // Используем больше знаков для научной нотации
+                return value.toExponential(20).replace('e', ' × 10^');
+            }
+            
+            // Преобразуем в строку с максимальной точностью
+            let str = value.toString();
+            
+            // Если число в научной нотации (JavaScript иногда автоматически преобразует)
+            if (str.includes('e')) {
+                return str.replace('e', ' × 10^');
+            }
+            
+            // Разделяем целую и дробную части
+            const parts = str.split('.');
+            
+            if (parts.length === 1) {
+                // Целое число - добавляем пробелы для разделителей тысяч
+                return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            }
+            
+            // Обрабатываем дробное число
+            const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            let fractionalPart = parts[1];
+            
+            // Удаляем лишние нули в конце дробной части
+            fractionalPart = fractionalPart.replace(/0+$/, '');
+            
+            // Если после удаления нулей дробная часть пустая, возвращаем только целую часть
+            if (fractionalPart === '') {
+                return integerPart;
+            }
+            
+            // Ограничиваем дробную часть 30 знаками (можно увеличить при необходимости)
+            const maxFractionDigits = 30;
+            if (fractionalPart.length > maxFractionDigits) {
+                fractionalPart = fractionalPart.substring(0, maxFractionDigits);
+                // Удаляем возможные нули в конце после обрезки
+                fractionalPart = fractionalPart.replace(/0+$/, '');
+            }
+            
+            return integerPart + '.' + fractionalPart;
+        }
+
+        // Copy text to clipboard with visual feedback
+        function copyToClipboard(text, element) {
+            if (!text || !element) return;
+            
+            // Create a temporary textarea
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '0';
+            textArea.style.top = '0';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            
+            try {
+                // Try to select and copy
+                textArea.select();
+                textArea.setSelectionRange(0, 99999); // For mobile devices
+                
+                const successful = document.execCommand('copy');
+                
+                if (successful) {
+                    // Show success feedback
+                    const originalClass = element.className;
+                    element.classList.remove('copy-hint');
+                    element.classList.add('copy-success');
+                    element.title = "Copied!";
+                    
+                    // Restore original state after 1.5 seconds
+                    setTimeout(() => {
+                        element.className = originalClass;
+                        if (element === document.getElementById('result-dec')) {
+                            element.title = "Click to copy value without formatting (Ctrl+C)";
+                        } else if (element === document.getElementById('result-hex')) {
+                            element.title = "Click to copy hex without 0x (Ctrl+C)";
+                        } else if (element === document.getElementById('result-bin')) {
+                            element.title = "Click to copy binary (Ctrl+C)";
+                        }
+                    }, 1500);
+                } else {
+                    console.error('Copy command failed');
+                }
+            } catch (err) {
+                console.error('Copy failed: ', err);
+                
+                // Fallback using Clipboard API
+                navigator.clipboard.writeText(text).then(() => {
+                    // Show success feedback
+                    const originalClass = element.className;
+                    element.classList.remove('copy-hint');
+                    element.classList.add('copy-success');
+                    element.title = "Copied!";
+                    
+                    setTimeout(() => {
+                        element.className = originalClass;
+                        if (element === document.getElementById('result-dec')) {
+                            element.title = "Click to copy value without formatting (Ctrl+C)";
+                        } else if (element === document.getElementById('result-hex')) {
+                            element.title = "Click to copy hex without 0x (Ctrl+C)";
+                        } else if (element === document.getElementById('result-bin')) {
+                            element.title = "Click to copy binary (Ctrl+C)";
+                        }
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Clipboard API failed: ', err);
+                    showError('Failed to copy to clipboard');
+                });
+            } finally {
+                // Clean up
+                document.body.removeChild(textArea);
+            }
+        }
+
         // Initialize interface
         function init() {
             initTheme();
@@ -872,21 +1090,29 @@
             row.id = `var-row-${name.toLowerCase()}`;
             
             row.innerHTML = `
-                <input type="text" 
-                       class="var-name-input" 
-                       value="${name}"
-                       data-original-name="${name}"
-                       oninput="validateVariableName(this, '${name}')"
-                       onblur="updateVariableName('${name}', this.value)"
-                       onkeydown="if(event.key === 'Enter') this.blur()">
-                <div class="var-equals">=</div>
-                <input type="text" 
-                       class="var-value-input" 
-                       value="${value}"
-                       placeholder="Value or expression"
-                       oninput="updateVariableValue('${name}', this.value)"
-                       onkeydown="if(event.key === 'Enter') calculateResult()"
-                       spellcheck="false">
+                <div class="variable-header">
+                    <input type="text" 
+                           class="var-name-input" 
+                           value="${name}"
+                           data-original-name="${name}"
+                           oninput="validateVariableName(this, '${name}')"
+                           onblur="updateVariableName('${name}', this.value)"
+                           onkeydown="if(event.key === 'Enter') this.blur()"
+                           placeholder="Variable name">
+                </div>
+                <div class="variable-body">
+                    <div class="var-label">
+                        <span class="var-equals">=</span>
+                        <span>Value</span>
+                    </div>
+                    <input type="text" 
+                           class="var-value-input" 
+                           value="${value}"
+                           placeholder="Value or expression"
+                           oninput="updateVariableValue('${name}', this.value)"
+                           onkeydown="if(event.key === 'Enter') calculateResult()"
+                           spellcheck="false">
+                </div>
                 <button class="remove-btn" onclick="removeVariable('${name}')" title="Remove variable">×</button>
             `;
             
@@ -1065,10 +1291,7 @@
                 }
                 
                 const displayValue = computedValue !== null && !isNaN(computedValue) 
-                    ? computedValue.toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                        minimumFractionDigits: 0
-                    })
+                    ? formatNumberPrecise(computedValue)
                     : variables[name] || 'undefined';
                 
                 const isDefined = computedValue !== null && !isNaN(computedValue);
@@ -1184,7 +1407,7 @@
                     }
                     
                     const description = computedValue !== null && !isNaN(computedValue) 
-                        ? `= ${computedValue.toFixed(4)}`
+                        ? `= ${formatNumberPrecise(computedValue)}`
                         : variables[name] || 'undefined';
                     
                     suggestions.push({
@@ -1202,7 +1425,7 @@
                     suggestions.push({
                         value: name,
                         display: name,
-                        description: `≈ ${constants[name].toFixed(6)}`,
+                        description: `≈ ${formatNumberPrecise(constants[name])}`,
                         type: 'constant'
                     });
                 }
@@ -1309,29 +1532,45 @@
             expr = expr.trim();
             if (!expr) return null;
 
-            if (visited.has(expr.toLowerCase())) {
-                throw new Error('Circular dependency');
-            }
-            visited.add(expr.toLowerCase());
-
+            // Если это просто число
             if (!isNaN(expr) && expr !== '') {
                 return parseFloat(expr);
             }
 
             const lowerExpr = expr.toLowerCase();
+            
+            // Если это константа
             if (constants.hasOwnProperty(lowerExpr)) {
                 return constants[lowerExpr];
             }
 
+            // Если это переменная
             if (variableExists(expr)) {
                 const originalName = getOriginalName(expr);
+                
+                // Проверка циклической зависимости
+                if (visited.has(originalName.toLowerCase())) {
+                    throw new Error(`Circular dependency detected with variable ${originalName}`);
+                }
+                
+                // Если у переменной нет значения, возвращаем NaN
+                if (!variables[originalName].trim()) {
+                    return NaN;
+                }
+                
+                // Добавляем переменную в visited и вычисляем ее значение
+                visited.add(originalName.toLowerCase());
                 try {
-                    return evaluateExpression(variables[originalName], visited);
+                    const result = evaluateExpression(variables[originalName], visited);
+                    visited.delete(originalName.toLowerCase());
+                    return result;
                 } catch (e) {
-                    throw new Error(`Error in ${originalName}: ${e.message}`);
+                    visited.delete(originalName.toLowerCase());
+                    throw e;
                 }
             }
 
+            // Если это функция
             const funcMatch = expr.match(/^(\w+)\(([^)]+)\)$/);
             if (funcMatch) {
                 const [, funcName, arg] = funcMatch;
@@ -1352,6 +1591,7 @@
                 }
             }
 
+            // Обработка скобок
             while (expr.includes('(')) {
                 const match = expr.match(/\(([^()]+)\)/);
                 if (!match) break;
@@ -1359,6 +1599,7 @@
                 expr = expr.replace(`(${match[1]})`, innerResult.toString());
             }
 
+            // Разбор выражения на токены
             const tokens = expr.match(/(\d+\.?\d*|[a-zA-Z_][a-zA-Z0-9_]*|\+|-|\*|\/|\^)/g);
             if (!tokens) throw new Error('Invalid expression');
 
@@ -1402,10 +1643,30 @@
             
             if (variableExists(token)) {
                 const originalName = getOriginalName(token);
-                return evaluateExpression(variables[originalName], visited);
+                
+                // Проверка циклической зависимости
+                if (visited.has(originalName.toLowerCase())) {
+                    throw new Error(`Circular dependency detected with variable ${originalName}`);
+                }
+                
+                // Если у переменной нет значения, возвращаем NaN
+                if (!variables[originalName].trim()) {
+                    return NaN;
+                }
+                
+                // Добавляем переменную в visited и вычисляем ее значение
+                visited.add(originalName.toLowerCase());
+                try {
+                    const result = evaluateExpression(variables[originalName], visited);
+                    visited.delete(originalName.toLowerCase());
+                    return result;
+                } catch (e) {
+                    visited.delete(originalName.toLowerCase());
+                    throw e;
+                }
             }
             
-            throw new Error(`Unknown: ${token}`);
+            throw new Error(`Unknown token: ${token}`);
         }
 
         // Calculate and display result
@@ -1447,35 +1708,67 @@
             if (isNaN(value) || !isFinite(value)) {
                 decElement.textContent = '—';
                 decElement.className = 'result-value empty';
+                decElement.onclick = null;
                 hexElement.textContent = '—';
                 hexElement.className = 'result-value empty';
+                hexElement.onclick = null;
                 binElement.textContent = '—';
                 binElement.className = 'result-value empty';
+                binElement.onclick = null;
                 return;
             }
             
-            // DEC
-            decElement.textContent = value.toLocaleString(undefined, {
-                maximumFractionDigits: 10,
-                minimumFractionDigits: 0
-            });
-            decElement.className = 'result-value';
+            // DEC - используем нашу улучшенную функцию форматирования
+            const formattedDec = formatNumberPrecise(value);
+            const rawDecValue = value.toString();
+            decElement.textContent = formattedDec;
+            decElement.className = 'result-value copy-hint';
+            // Добавляем обработчик клика
+            decElement.onclick = function(e) {
+                copyToClipboard(rawDecValue, decElement);
+                e.stopPropagation();
+            };
+            decElement.title = "Click to copy value without formatting (Ctrl+C)";
             
-            // HEX
-            if (Number.isInteger(value)) {
-                hexElement.textContent = '0x' + value.toString(16).toUpperCase();
+            // HEX - улучшенная обработка
+            if (Number.isInteger(value) && Math.abs(value) < 1e15) {
+                const hexValue = value.toString(16).toUpperCase();
+                hexElement.textContent = '0x' + hexValue;
+                hexElement.className = 'result-value copy-hint';
+                hexElement.onclick = function(e) {
+                    copyToClipboard(hexValue, hexElement);
+                    e.stopPropagation();
+                };
+                hexElement.title = "Click to copy hex without 0x (Ctrl+C)";
             } else {
-                hexElement.textContent = '0x' + value.toString(16).toUpperCase().slice(0, 14) + '...';
+                // Для нецелых или очень больших чисел
+                const hexStr = value.toString(16).toUpperCase();
+                if (hexStr.length > 20) {
+                    hexElement.textContent = '0x' + hexStr.substring(0, 17) + '...';
+                } else {
+                    hexElement.textContent = '0x' + hexStr;
+                }
+                hexElement.className = 'result-value';
+                hexElement.onclick = null;
+                hexElement.title = "";
             }
-            hexElement.className = 'result-value';
             
             // BIN
             if (Number.isInteger(value) && Math.abs(value) < 1024) {
-                binElement.textContent = value.toString(2);
+                const binValue = value.toString(2);
+                binElement.textContent = binValue;
+                binElement.className = 'result-value copy-hint';
+                binElement.onclick = function(e) {
+                    copyToClipboard(binValue, binElement);
+                    e.stopPropagation();
+                };
+                binElement.title = "Click to copy binary (Ctrl+C)";
             } else {
                 binElement.textContent = 'Too large';
+                binElement.className = 'result-value';
+                binElement.onclick = null;
+                binElement.title = "";
             }
-            binElement.className = 'result-value';
         }
 
         // Show error
@@ -1508,6 +1801,7 @@
         window.applySuggestion = applySuggestion;
         window.handleExpressionKeydown = handleExpressionKeydown;
         window.toggleTheme = toggleTheme;
+        window.copyToClipboard = copyToClipboard;
     </script>
 </body>
 </html>
